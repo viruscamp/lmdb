@@ -1,0 +1,92 @@
+# Makefile for liblmdb (Lightning memory-mapped database library) with nmake.
+
+!if !defined(DLL)
+DLL=0
+!endif
+
+!if !defined(DEBUG)
+DEBUG=0
+!endif
+
+!if !defined(MFLAGS)
+!if !$(DLL)
+MFLAGS=
+!else
+MFLAGS = -MD
+!endif
+!endif
+
+CC=cl.exe -nologo -c
+LINK=link.exe -nologo
+AR=lib.exe -nologo
+
+LINKFLAGS = -NXCOMPAT
+CFLAGS = -I windows -D "_CRT_SECURE_NO_WARNINGS" -D "_CRT_NONSTDC_NO_DEPRECATE" -D "_UNICODE" -D "UNICODE"
+WARN_CFLAGS = -W3 -wd"4996" -wd"4146" -wd"4703"
+!if $(DEBUG)
+OPTIMFLAGS = -FD -O2 -EHsc -Zi -D "_DEBUG" -D "MDB_DEBUG"
+DEBUGFLAGS = -Zi
+LINKFLAGS = $(LINKFLAGS) -DEBUG
+!else
+OPTIMFLAGS = -FD -O2 -EHsc -Zi -GL -D "_NDEBUG"
+DEBUGFLAGS = -Zi
+LINKFLAGS = $(LINKFLAGS) -RELEASE -LTCG
+!endif
+CFLAGS = $(CFLAGS) $(MFLAGS) $(WARN_CFLAGS) $(OPTIMFLAGS)
+
+LIBS_SYS	= kernel32.lib user32.lib Advapi32.lib
+IHDRS	= lmdb.h
+LIB_STATIC	= lmdb.lib
+LIB_DYNAMIC	= liblmdb.lib
+!if $(DLL)
+ILIBS	= $(LIB_STATIC) $(LIB_DYNAMIC)
+LIB_LINK = $(LIB_DYNAMIC)
+!else
+ILIBS	= $(LIB_STATIC)
+LIB_LINK = $(LIB_STATIC)
+!endif
+IPROGS	= mdb_stat.exe mdb_copy.exe mdb_dump.exe mdb_load.exe
+TESTS	= mtest.exe mtest2.exe mtest3.exe mtest4.exe mtest5.exe
+!if $(DEBUG)
+TESTS	= $(TESTS) mtest6.exe
+!endif
+PROGS	= $(IPROGS) $(TESTS)
+all:	$(ILIBS) $(PROGS)
+
+mdb_stat.exe: mdb_stat.obj $(LIB_LINK)
+mdb_copy.exe: mdb_copy.obj $(LIB_LINK)
+mdb_dump.exe: mdb_dump.obj $(LIB_LINK)
+mdb_load.exe: mdb_load.obj $(LIB_LINK)
+mtest.exe:    mtest.obj    $(LIB_LINK)
+mtest2.exe:	mtest2.obj $(LIB_LINK)
+mtest3.exe:	mtest3.obj $(LIB_LINK)
+mtest4.exe:	mtest4.obj $(LIB_LINK)
+mtest5.exe:	mtest5.obj $(LIB_LINK)
+mtest6.exe:	mtest6.obj lmdb.lib
+
+clean:
+	del /f /q $(PROGS) *.obj *.exe *.dll *.lib *.pdb
+
+test:	all
+	if exist testdb rmdir /s /q testdb
+	mkdir testdb
+	.\mtest && .\mdb_stat testdb
+
+lmdb.lib:	mdb.obj midl.obj
+	$(AR) -out:$@ $**
+
+liblmdb.lib:	liblmdb.dll
+liblmdb.dll:	lmdb.lib windows/lmdb.def
+	$(LINK) $(LINKFLAGS) $(LIBS_SYS) -dll -out:$@ -def:windows/lmdb.def lmdb.lib
+
+mdb.obj: mdb.c lmdb.h midl.h
+	$(CC) $(CFLAGS) mdb.c
+
+midl.obj: midl.c midl.h
+	$(CC) $(CFLAGS) midl.c
+
+%.obj:	%.c lmdb.h
+	$(CC) $(CFLAGS) $*.c
+
+.obj.exe:
+	$(LINK) $(LINKFLAGS) $(LIBS_SYS) -out:$@ $**

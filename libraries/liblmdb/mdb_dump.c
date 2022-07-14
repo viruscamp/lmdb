@@ -76,7 +76,7 @@ static void text(MDB_val *v)
 	putchar('\n');
 }
 
-static void byte(MDB_val *v)
+static void print_byte(MDB_val *v)
 {
 	unsigned char *c, *end;
 
@@ -140,8 +140,8 @@ static int dumpit(MDB_txn *txn, MDB_dbi dbi, char *name)
 			text(&key);
 			text(&data);
 		} else {
-			byte(&key);
-			byte(&data);
+			print_byte(&key);
+			print_byte(&data);
 		}
 	}
 	printf("DATA=END\n");
