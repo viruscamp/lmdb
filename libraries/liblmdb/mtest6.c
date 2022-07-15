@@ -24,6 +24,8 @@
 #define CHECK(test, msg) ((test) ? (void)0 : ((void)fprintf(stderr, \
 	"%s:%d: %s: %s\n", __FILE__, __LINE__, msg, mdb_strerror(rc)), abort()))
 
+char *mdb_dkey(MDB_val *key, char *buf);
+
 char dkbuf[1024];
 
 int main(int argc,char * argv[])
