@@ -54,17 +54,17 @@ all:	$(ILIBS) $(PROGS)
 
 clean:
 	if exist testdb rmdir /s /q testdb
-	del /f /q *.obj *.exe *.dll *.lib *.pdb
+	del /f /q *.obj *.exe *.dll *.lib *.pdb *.rc *.res
 
 test:	all
 	if exist testdb rmdir /s /q testdb
 	mkdir testdb
 	.\mtest && .\mdb_stat testdb
 
-mdb_stat.exe: mdb_stat.obj $(LIB_LINK)
-mdb_copy.exe: mdb_copy.obj $(LIB_LINK)
-mdb_dump.exe: mdb_dump.obj $(LIB_LINK)
-mdb_load.exe: mdb_load.obj $(LIB_LINK)
+mdb_stat.exe: mdb_stat.obj mdb_stat.exe.res $(LIB_LINK)
+mdb_copy.exe: mdb_copy.obj mdb_copy.exe.res $(LIB_LINK)
+mdb_dump.exe: mdb_dump.obj mdb_dump.exe.res $(LIB_LINK)
+mdb_load.exe: mdb_load.obj mdb_load.exe.res $(LIB_LINK)
 mtest.exe:    mtest.obj    $(LIB_LINK)
 mtest2.exe:	mtest2.obj $(LIB_LINK)
 mtest3.exe:	mtest3.obj $(LIB_LINK)
@@ -79,8 +79,8 @@ lmdb.lib:	mdb.obj midl.obj
 	$(AR) -out:$@ $**
 
 liblmdb.lib:	liblmdb.dll
-liblmdb.dll:	lmdb.lib windows/lmdb.def
-	$(LINK) $(LINKFLAGS) $(LIBS_SYS) -dll -out:$@ -def:windows/lmdb.def lmdb.lib
+liblmdb.dll:	lmdb.lib windows/lmdb.def liblmdb.dll.res
+	$(LINK) $(LINKFLAGS) $(LIBS_SYS) -dll -out:$@ -def:windows/lmdb.def lmdb.lib liblmdb.dll.res
 
 mdb.obj: mdb.c lmdb.h midl.h
 midl.obj: midl.c midl.h
@@ -88,3 +88,46 @@ midl.obj: midl.c midl.h
 # nmake predefined inference rules
 #.c.obj::
 #	$(CC) $(CFLAGS) /c $<
+
+.rc.res:
+	rc $<
+
+generated_rc=mdb_stat.exe.rc mdb_copy.exe.rc mdb_dump.exe.rc mdb_load.exe.rc liblmdb.dll.rc
+
+$(generated_rc):
+	copy <<temp.rc $@
+#include <lmdb.h>
+#include <windows.h>
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION MDB_VERSION_MAJOR,MDB_VERSION_MINOR,MDB_VERSION_PATCH,0
+ PRODUCTVERSION MDB_VERSION_MAJOR,MDB_VERSION_MINOR,MDB_VERSION_PATCH,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileDescription", "$(@B) of lmdb\0"
+            VALUE "FileVersion", MDB_VERSION_MAJOR"."MDB_VERSION_MINOR"."MDB_VERSION_PATCH".0\0"
+            VALUE "InternalName", "$(@B)\0"
+            VALUE "LegalCopyright", "Copyright 2011-2021 Howard Chu, Symas Corp\0"
+            VALUE "OriginalFilename", "$(@B)\0"
+            VALUE "ProductName", "liblmdb (Lightning memory-mapped database library)\0"
+            VALUE "ProductVersion", MDB_VERSION_STRING
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+<<
