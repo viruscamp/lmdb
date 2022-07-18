@@ -43,7 +43,7 @@ LIB_LINK = $(LIB_DYNAMIC)
 ILIBS	= $(LIB_STATIC)
 LIB_LINK = $(LIB_STATIC)
 !endif
-IPROGS	= mdb_stat.exe mdb_copy.exe mdb_dump.exe mdb_load.exe
+IPROGS	= mdb_stat.exe mdb_copy.exe mdb_dump.exe mdb_load.exe mdb_drop.exe
 TESTS	= mtest.exe mtest2.exe mtest3.exe mtest4.exe mtest5.exe
 !if $(DEBUG)
 TESTS	= $(TESTS) mtest6.exe
@@ -65,6 +65,7 @@ mdb_stat.exe: mdb_stat.obj mdb_stat.exe.res $(LIB_LINK)
 mdb_copy.exe: mdb_copy.obj mdb_copy.exe.res $(LIB_LINK)
 mdb_dump.exe: mdb_dump.obj mdb_dump.exe.res $(LIB_LINK)
 mdb_load.exe: mdb_load.obj mdb_load.exe.res $(LIB_LINK)
+mdb_drop.exe: mdb_drop.obj mdb_drop.exe.res $(LIB_LINK)
 mtest.exe:    mtest.obj    $(LIB_LINK)
 mtest2.exe:	mtest2.obj $(LIB_LINK)
 mtest3.exe:	mtest3.obj $(LIB_LINK)
@@ -92,7 +93,7 @@ midl.obj: midl.c midl.h
 .rc.res:
 	rc $<
 
-generated_rc=mdb_stat.exe.rc mdb_copy.exe.rc mdb_dump.exe.rc mdb_load.exe.rc liblmdb.dll.rc
+generated_rc=mdb_stat.exe.rc mdb_copy.exe.rc mdb_dump.exe.rc mdb_load.exe.rc mdb_drop.exe.rc liblmdb.dll.rc
 
 $(generated_rc):
 	copy <<temp.rc $@

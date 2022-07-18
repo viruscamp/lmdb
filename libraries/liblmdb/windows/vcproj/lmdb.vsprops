@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="gb2312"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="lmdb"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories=".."
+		PreprocessorDefinitions="MDB_DEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;"
+		ProgramDataBaseFileName="$(IntDir)\$(TargetName).vc90.pdb"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		ProgramDatabaseFile="$(IntDir)\$(TargetName).vc90.pdb"
+	/>
+</VisualStudioPropertySheet>
