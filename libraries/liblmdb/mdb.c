@@ -3710,10 +3710,11 @@ mdb_page_flush(MDB_txn *txn, int keep)
 		/* ran out of room in ov array, and re-malloc, copy handles and free previous */
 		int ovs = (pagecount - keep) * 1.5; /* provide extra padding to reduce number of re-allocations */
 		int new_size = ovs * sizeof(OVERLAPPED);
+		int previous_size;
 		ov = malloc(new_size);
 		if (ov == NULL)
 			return ENOMEM;
-		int previous_size = env->ovs * sizeof(OVERLAPPED);
+		previous_size = env->ovs * sizeof(OVERLAPPED);
 		memcpy(ov, env->ov, previous_size); /* Copy previous OVERLAPPED data to retain event handles */
 		/* And clear rest of memory */
 		memset(&ov[env->ovs], 0, new_size - previous_size);
@@ -3760,11 +3761,14 @@ mdb_page_flush(MDB_txn *txn, int keep)
 #endif
 			) {
 			if (n) {
+#ifdef _WIN32
+				OVERLAPPED *this_ov;
+#endif
 retry_write:
 				/* Write previous page(s) */
 				DPRINTF(("committing page %"Z"u", pgno));
 #ifdef _WIN32
-				OVERLAPPED *this_ov = &ov[async_i];
+				this_ov = &ov[async_i];
 				/* Clear status, and keep hEvent, we reuse that */
 				this_ov->Internal = 0;
 				this_ov->Offset = wpos & 0xffffffff;

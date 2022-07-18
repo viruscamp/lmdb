@@ -54,7 +54,7 @@ all:	$(ILIBS) $(PROGS)
 
 clean:
 	if exist testdb rmdir /s /q testdb
-	del /f /q *.obj *.exe *.dll *.lib *.pdb *.rc *.res
+	del /f /q *.obj *.exe *.dll *.lib *.pdb *.rc *.res *.ilk *.idb *.exp
 
 test:	all
 	if exist testdb rmdir /s /q testdb
@@ -79,8 +79,8 @@ lmdb.lib:	mdb.obj midl.obj
 	$(AR) -out:$@ $**
 
 liblmdb.lib:	liblmdb.dll
-liblmdb.dll:	lmdb.lib windows/lmdb.def liblmdb.dll.res
-	$(LINK) $(LINKFLAGS) $(LIBS_SYS) -dll -out:$@ -def:windows/lmdb.def lmdb.lib liblmdb.dll.res
+liblmdb.dll:	mdb.obj midl.obj windows/lmdb.def liblmdb.dll.res
+	$(LINK) $(LINKFLAGS) $(LIBS_SYS) -dll -out:$@ -def:windows/lmdb.def mdb.obj midl.obj liblmdb.dll.res
 
 mdb.obj: mdb.c lmdb.h midl.h
 midl.obj: midl.c midl.h
