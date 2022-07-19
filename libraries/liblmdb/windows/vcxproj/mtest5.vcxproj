@@ -147,8 +147,8 @@
     <ClCompile Include="..\..\mtest5.c" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="lmdb-lib.vcxproj">
-      <Project>{714af139-710e-464c-93dd-a232015c898b}</Project>
+    <ProjectReference Include="lmdb-dll.vcxproj">
+      <Project>{8C445DFB-0640-420C-8F97-5FDA88B5D6E8}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
